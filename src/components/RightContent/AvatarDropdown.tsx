@@ -1,8 +1,8 @@
-import { outLogin } from '@/services/ant-design-pro/api';
+import {userLogoutUsingPost} from '../../services/yuzi-generator-web-backend/userController';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
-import { Spin } from 'antd';
-import { createStyles } from 'antd-style';
+import {Link} from 'umi';
+import { Avatar, Space, Button } from 'antd';
 import { stringify } from 'querystring';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
@@ -17,33 +17,17 @@ export type GlobalHeaderRightProps = {
 export const AvatarName = () => {
   const { initialState } = useModel('@@initialState');
   const { currentUser } = initialState || {};
-  return <span className="anticon">{currentUser?.name}</span>;
+  return <span className="anticon">{currentUser?.userName}</span>;
 };
 
-const useStyles = createStyles(({ token }) => {
-  return {
-    action: {
-      display: 'flex',
-      height: '48px',
-      marginLeft: 'auto',
-      overflow: 'hidden',
-      alignItems: 'center',
-      padding: '0 8px',
-      cursor: 'pointer',
-      borderRadius: token.borderRadius,
-      '&:hover': {
-        backgroundColor: token.colorBgTextHover,
-      },
-    },
-  };
-});
 
-export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, children }) => {
+
+export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu,  }) => {
   /**
    * 退出登录，并且将当前的 url 保存
    */
   const loginOut = async () => {
-    await outLogin();
+    await userLogoutUsingPost();
     const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
@@ -58,7 +42,7 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
       });
     }
   };
-  const { styles } = useStyles();
+  // const { styles } = useStyles();
 
   const { initialState, setInitialState } = useModel('@@initialState');
 
@@ -77,26 +61,32 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
     [setInitialState],
   );
 
-  const loading = (
-    <span className={styles.action}>
-      <Spin
-        size="small"
-        style={{
-          marginLeft: 8,
-          marginRight: 8,
-        }}
-      />
-    </span>
-  );
+  // const loading = (
+  //   <span className={styles.action}>
+  //     <Spin
+  //       size="small"
+  //       style={{
+  //         marginLeft: 8,
+  //         marginRight: 8,
+  //       }}
+  //     />
+  //   </span>
+  // );
 
-  if (!initialState) {
-    return loading;
-  }
+  // if (!initialState) {
+  //   return loading;
+  // }
 
-  const { currentUser } = initialState;
+  const { currentUser } = initialState || {};
 
-  if (!currentUser || !currentUser.name) {
-    return loading;
+  if (!currentUser ) {
+    return (
+      <Link to='/user/login'>
+        <Button type='primary' shape='round'>
+          登录
+        </Button>
+      </Link>
+    );
   }
 
   const menuItems = [
@@ -132,7 +122,15 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu, childre
         items: menuItems,
       }}
     >
-      {children}
+      <Space>
+        {currentUser?.userAvatar ? (
+          <Avatar src={currentUser?.userAvatar} size="small" />
+        ) : (
+          <Avatar size="small" icon={<UserOutlined></UserOutlined>} />
+        )}
+
+        <span className="anticon">{currentUser?.userName ?? '无名'}</span>
+      </Space>
     </HeaderDropdown>
   );
 };

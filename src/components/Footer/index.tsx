@@ -3,28 +3,28 @@ import { DefaultFooter } from '@ant-design/pro-components';
 import React from 'react';
 
 const Footer: React.FC = () => {
+  const defaultMessage = 'KingGD with ❤️';
+  const currentYear = new Date().getFullYear();
   return (
     <DefaultFooter
       style={{
         background: 'none',
       }}
+      copyright={`${currentYear} ${defaultMessage}`}
       links={[
         {
-          key: 'Ant Design Pro',
-          title: 'Ant Design Pro',
-          href: 'https://pro.ant.design',
+          key: 'KGD',
+          title: 'KGD-React',
+          href: 'https://github.com/King-GD/React-template',
           blankTarget: true,
         },
         {
           key: 'github',
-          title: <GithubOutlined />,
-          href: 'https://github.com/ant-design/ant-design-pro',
-          blankTarget: true,
-        },
-        {
-          key: 'Ant Design',
-          title: 'Ant Design',
-          href: 'https://ant.design',
+          title: (
+            <><GithubOutlined /> GitHub源码</>
+
+          ),
+          href: 'https://github.com/King-GD/React-template',
           blankTarget: true,
         },
       ]}
