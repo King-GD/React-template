@@ -1,4 +1,4 @@
-import {userLogoutUsingPost} from '../../services/yuzi-generator-web-backend/userController';
+import {userLogoutUsingPost} from '@/services/backend/userController';
 import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import { history, useModel } from '@umijs/max';
 import {Link} from 'umi';

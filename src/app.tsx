@@ -5,7 +5,7 @@ import { history } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { requestConfig } from './requestConfig';
 import React from 'react';
-import { getLoginUserUsingGet } from './services/yuzi-generator-web-backend/userController';
+import { getLoginUserUsingGet } from './services/backend/userController';
 const loginPath = '/user/login';
 
 export async function getInitialState(): Promise<InitialState> {

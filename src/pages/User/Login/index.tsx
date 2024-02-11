@@ -1,4 +1,4 @@
-import { userLoginUsingPost } from '@/services/yuzi-generator-web-backend/userController';
+import { userLoginUsingPost } from '@/services/backend/userController';
 import { Footer } from '@/components';
 import {
   AlipayCircleOutlined,

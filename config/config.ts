@@ -144,7 +144,7 @@ export default defineConfig({
     {
       requestLibPath: "import { request } from '@umijs/max'",
       schemaPath: "http://localhost:8101/api/v2/api-docs",
-      projectName: 'yuzi-generator-web-backend',
+      projectName: 'backend',
     },
   ],
   mfsu: {
