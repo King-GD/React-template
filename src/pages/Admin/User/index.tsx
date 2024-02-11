@@ -1,4 +1,3 @@
-import { addRule, removeRule, rule, updateRule } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -11,17 +10,18 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, Drawer, Input, message } from 'antd';
+import { Button, Drawer, message, Space, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
+import { listUserByPageUsingPost } from '@/services/backend/userController';
 
 /**
- * @en-US Add node
+ *
  * @zh-CN 添加节点
  * @param fields
  */
-const handleAdd = async (fields: API.RuleListItem) => {
+const handleAdd = async (fields: API.User) => {
   const hide = message.loading('正在添加');
   try {
     await addRule({
@@ -38,13 +38,13 @@ const handleAdd = async (fields: API.RuleListItem) => {
 };
 
 /**
- * @en-US Update node
+ *
  * @zh-CN 更新节点
  *
  * @param fields
  */
 const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading('Configuring');
+  const hide = message.loading('正在更新');
   try {
     await updateRule({
       name: fields.name,
@@ -52,22 +52,22 @@ const handleUpdate = async (fields: FormValueType) => {
       key: fields.key,
     });
     hide();
-    message.success('Configuration is successful');
+    message.success('更新成功');
     return true;
   } catch (error) {
     hide();
-    message.error('Configuration failed, please try again!');
+    message.error('更新失败，请重试!');
     return false;
   }
 };
 
 /**
- *  Delete node
+ *
  * @zh-CN 删除节点
  *
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: API.RuleListItem[]) => {
+const handleDelete = async (selectedRows: API.User[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
@@ -75,127 +75,117 @@ const handleRemove = async (selectedRows: API.RuleListItem[]) => {
       key: selectedRows.map((row) => row.key),
     });
     hide();
-    message.success('Deleted successfully and will refresh soon');
+    message.success('删除成功');
     return true;
   } catch (error) {
     hide();
-    message.error('Delete failed, please try again');
+    message.error('删除失败，请重试!');
     return false;
   }
 };
 const TableList: React.FC = () => {
   /**
-   * @en-US Pop-up window of new window
+   *
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
   /**
-   * @en-US The pop-up window of the distribution update window
-   * @zh-CN 分布更新窗口的弹窗
+   *
+   * @zh-CN 更新窗口的弹窗
    * */
   const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.RuleListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  // 当前用户点击数据
+  const [currentRow, setCurrentRow] = useState<API.User>();
+  const [selectedRowsState, setSelectedRows] = useState<API.User[]>([]);
 
   /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
-
-  const columns: ProColumns<API.RuleListItem>[] = [
+   * 表格列数据
+   */
+  const columns: ProColumns<API.User>[] = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
-      tip: 'The rule name is the unique key',
-      render: (dom, entity) => {
-        return (
-          <a
-            onClick={() => {
-              setCurrentRow(entity);
-              setShowDetail(true);
-            }}
-          >
-            {dom}
-          </a>
-        );
-      },
+      title: 'id',
+      dataIndex: 'id',
+      valueType: 'text',
+      hideInForm: true,
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
+      title: '账号',
+      dataIndex: 'userAccount',
+      valueType: 'text',
+    },
+    {
+      title: '用户名',
+      dataIndex: 'userName',
+      valueType: 'text',
+    },
+    {
+      title: '头像',
+      dataIndex: 'userAvatar',
+      valueType: 'image',
+      fieldProps: {
+        width: 64,
+      },
+      hideInSearch: true,
+    },
+    {
+      title: '简介',
+      dataIndex: 'userProfile',
       valueType: 'textarea',
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
-      sorter: true,
-      hideInForm: true,
-      renderText: (val: string) => `${val}${'万'}`,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      hideInForm: true,
+      title: '权限',
+      dataIndex: 'userRole',
       valueEnum: {
-        0: {
-          text: '关闭',
-          status: 'Default',
+        user: {
+          text: '用户',
         },
-        1: {
-          text: '运行中',
-          status: 'Processing',
-        },
-        2: {
-          text: '已上线',
-          status: 'Success',
-        },
-        3: {
-          text: '异常',
-          status: 'Error',
+        admin: {
+          text: '管理员',
         },
       },
     },
     {
-      title: '上次调度时间',
+      title: '创建时间',
       sorter: true,
-      dataIndex: 'updatedAt',
+      dataIndex: 'createTime',
       valueType: 'dateTime',
-      renderFormItem: (item, { defaultRender, ...rest }, form) => {
-        const status = form.getFieldValue('status');
-        if (`${status}` === '0') {
-          return false;
-        }
-        if (`${status}` === '3') {
-          return <Input {...rest} placeholder={'请输入异常原因！'} />;
-        }
-        return defaultRender(item);
-      },
+      hideInSearch: true,
+      hideInForm: true,
+    },
+    {
+      title: '更新时间',
+      sorter: true,
+      dataIndex: 'updateTime',
+      valueType: 'dateTime',
+      hideInSearch: true,
+      hideInForm: true,
     },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
-      render: (_, record) => [
-        <a
-          key="config"
-          onClick={() => {
-            handleUpdateModalOpen(true);
-            setCurrentRow(record);
-          }}
-        >
-          配置
-        </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          订阅警报
-        </a>,
-      ],
+      render: (_, record) => (
+        <Space size="middle">
+          <Typography.Link
+            onClick={() => {
+              setCurrentRow(record);
+              handleUpdateModalOpen(true);
+            }}
+          >
+            修改
+          </Typography.Link>
+          <Typography.Link type="danger" onClick={() => handleDelete(selectedRowsState)}>
+            删除
+          </Typography.Link>
+        </Space>
+      ),
     },
   ];
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
+      <ProTable<API.User>
         headerTitle={'查询表格'}
         actionRef={actionRef}
         rowKey="key"
@@ -213,7 +203,23 @@ const TableList: React.FC = () => {
             <PlusOutlined /> 新建
           </Button>,
         ]}
-        request={rule}
+        request={async (params, sort, filter) => {
+          // 要取的排序字段的值  升序或者降序
+          const sortField = Object.keys(sort)?.[0];
+          // 要取的排序字段
+          const sortOrder = sort?.[sortField] ?? undefined;
+          const { data, code } = await listUserByPageUsingPost({
+            ...params,
+            sortField,
+            sortOrder,
+            ...filter,
+          });
+          return {
+            success: code === 0,
+            data: data?.records || [],
+            total: data?.total || 0,
+          };
+        }}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -242,7 +248,7 @@ const TableList: React.FC = () => {
         >
           <Button
             onClick={async () => {
-              await handleRemove(selectedRowsState);
+              await handleDelete(selectedRowsState);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -258,7 +264,7 @@ const TableList: React.FC = () => {
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
-          const success = await handleAdd(value as API.RuleListItem);
+          const success = await handleAdd(value as API.User);
           if (success) {
             handleModalOpen(false);
             if (actionRef.current) {
@@ -310,7 +316,7 @@ const TableList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<API.RuleListItem>
+          <ProDescriptions<API.User>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -319,7 +325,7 @@ const TableList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
+            columns={columns as ProDescriptionsItemProps<API.User>[]}
           />
         )}
       </Drawer>

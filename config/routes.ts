@@ -11,11 +11,10 @@ export default [
     icon: 'crown',
     access: 'canAdmin',
     routes: [
-      { path: '/admin', redirect: '/admin/sub-page' },
-      { path: '/admin/sub-page', name: '二级管理页', component: './Admin' },
+      { path: '/admin', redirect: '/admin/user' },
+      { icon :'table', path: '/admin/user', name: '用户管理', component: './Admin/User' },
     ],
   },
-  { name: '查询表格', icon: 'table', path: '/list',  component: './TableList' },
   { path: '/', redirect: '/welcome' },
   { path: '*', layout: false, component: './404' },
 ];
