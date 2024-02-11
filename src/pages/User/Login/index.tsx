@@ -66,8 +66,8 @@ const Login: React.FC = () => {
       const urlParams = new URL(window.location.href).searchParams;
       history.push(urlParams.get('redirect') || '/');
       return;
-    } catch (error) {
-      const defaultLoginFailureMessage = '登录失败，请重试！';
+    } catch (error: any) {
+      const defaultLoginFailureMessage = `登录失败，请重试！${error.message}`;
       message.error(defaultLoginFailureMessage);
     }
   };
@@ -91,8 +91,8 @@ const Login: React.FC = () => {
             maxWidth: '75vw',
           }}
           logo={<img alt="logo" src="/logo.svg" />}
-          title="Ant Design"
-          subTitle={'Ant Design 是西湖区最具影响力的 Web 设计规范'}
+          title="KGD-React-template"
+          subTitle={'KingGD with ❤️'}
           initialValues={{
             autoLogin: true,
           }}
@@ -116,7 +116,7 @@ const Login: React.FC = () => {
           {type === 'account' && (
             <>
               <ProFormText
-                name="username"
+                name="userAccount"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined />,
@@ -130,7 +130,7 @@ const Login: React.FC = () => {
                 ]}
               />
               <ProFormText.Password
-                name="password"
+                name="userPassword"
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined />,
@@ -152,7 +152,7 @@ const Login: React.FC = () => {
               marginBottom: 16,
             }}
           >
-            <a>忘记密码 ?</a>
+            <a>新用户注册</a>
           </div>
         </LoginForm>
       </div>
