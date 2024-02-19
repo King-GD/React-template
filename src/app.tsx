@@ -16,19 +16,19 @@ export async function getInitialState(): Promise<InitialState> {
   // 如果不是登录页面，执行
   const { location } = history;
   if (location.pathname !== loginPath) {
-    // try {
-    //   const res = await getLoginUserUsingGet();
-    //   initalState.currentUser = res.data;
-    // } catch (error) {
-    //   // 如果未登录
-    // }
+    try {
+      const res = await getLoginUserUsingGet();
+      initalState.currentUser = res.data;
+    } catch (error) {
+      // 如果未登录
+    }
 
-    const mockUser: API.LoginUserVO = {
-      userAvatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
-      userName: 'KGD',
-      userRole: 'admin',
-    };
-    initalState.currentUser = mockUser;
+    // const mockUser: API.LoginUserVO = {
+    //   userAvatar: 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+    //   userName: 'KGD',
+    //   userRole: 'admin',
+    // };
+    // initalState.currentUser = mockUser;
   }
   return initalState;
 }
