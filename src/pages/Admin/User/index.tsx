@@ -2,7 +2,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import { PageContainer, ProDescriptions, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
-import { Button, Drawer, message, Space, Typography } from 'antd';
+import { Button, Drawer, message, Modal, Space, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
 import { listUserByPageUsingPost, deleteUserUsingPost } from '@/services/backend/userController';
 import UpdateModal from './components/UpdateModel';
@@ -23,7 +23,7 @@ const UserAdminPage: React.FC = () => {
    * @zh-CN 更新窗口的弹窗
    * */
   const [updateModalOpen, sethandleUpdateModalOpen] = useState<boolean>(false);
-  const [showDetail, setShowDetail] = useState<boolean>(false);
+  const [showDetail, setShowDetail] = useState<boolean>(true);
   const actionRef = useRef<ActionType>();
   // 当前用户点击数据
   const [currentRow, setCurrentRow] = useState<API.User>();
@@ -128,7 +128,15 @@ const UserAdminPage: React.FC = () => {
           >
             修改
           </Typography.Link>
-          <Typography.Link type="danger" onClick={() => handleDelete(record)}>
+        <Typography.Link type="danger" onClick={() => {
+          Modal.confirm({
+            title: '确定要删除吗？',
+            content: '删除后数据将无法恢复',
+            onOk: () => {
+              handleDelete(record);
+            }
+          })
+        }}>
             删除
           </Typography.Link>
         </Space>
@@ -190,7 +198,8 @@ const UserAdminPage: React.FC = () => {
           sethandleUpdateModalOpen(false);
           actionRef.current?.reloadAndRest?.();
         }}
-        onCancel={() => sethandleUpdateModalOpen}
+        onCancel={() => sethandleUpdateModalOpen(false)}
+        oldData={currentRow}
       />
       <Drawer
         width={600}
