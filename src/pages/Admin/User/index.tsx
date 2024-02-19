@@ -1,65 +1,56 @@
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
-import {
-  FooterToolbar,
-  ModalForm,
-  PageContainer,
-  ProDescriptions,
-  ProFormText,
-  ProFormTextArea,
-  ProTable,
-} from '@ant-design/pro-components';
+import { PageContainer, ProDescriptions, ProTable } from '@ant-design/pro-components';
 import '@umijs/max';
 import { Button, Drawer, message, Space, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
-import type { FormValueType } from './components/UpdateModel';
-import UpdateForm from './components/UpdateModel';
-import { listUserByPageUsingPost,  deleteUserUsingPost} from '@/services/backend/userController';
+import { listUserByPageUsingPost, deleteUserUsingPost } from '@/services/backend/userController';
+import UpdateModal from './components/UpdateModel';
+import CreateModal from './components/CreateModel';
 
-
-const TableList: React.FC = () => {
+/**
+ *
+ * 用户管理页面
+ */
+const UserAdminPage: React.FC = () => {
   /**
    *
    * @zh-CN 新建窗口的弹窗
    *  */
-  const [createModalOpen, handleModalOpen] = useState<boolean>(false);
+  const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   /**
    *
    * @zh-CN 更新窗口的弹窗
    * */
-  const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
+  const [updateModalOpen, sethandleUpdateModalOpen] = useState<boolean>(false);
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   // 当前用户点击数据
   const [currentRow, setCurrentRow] = useState<API.User>();
-  const [selectedRowsState, setSelectedRows] = useState<API.User[]>([]);
-
 
   /**
- *
- * @zh-CN 删除节点
- *
- * @param selectedRows
- */
-const handleDelete = async (row: API.User) => {
-  const hide = message.loading('正在删除');
-  if (!row) return true;
-  try {
-    await deleteUserUsingPost({
-      id: row.id,
-    });
-    hide();
-    message.success('删除成功');
-    actionRef?.current?.reload()
-    return true;
-  } catch (error) {
-    hide();
-    message.error('删除失败，请重试!');
-    return false;
-  }
-};
-
-
+   *
+   * @zh-CN 删除节点
+   *
+   * @param selectedRows
+   */
+  const handleDelete = async (row: API.User) => {
+    const hide = message.loading('正在删除');
+    if (!row) return true;
+    try {
+      await deleteUserUsingPost({
+        id: row.id,
+      });
+      hide();
+      message.success('删除成功');
+      actionRef?.current?.reload();
+      return true;
+    } catch (error) {
+      hide();
+      message.error('删除失败，请重试!');
+      return false;
+    }
+  };
 
   /**
    * 表格列数据
@@ -132,7 +123,7 @@ const handleDelete = async (row: API.User) => {
           <Typography.Link
             onClick={() => {
               setCurrentRow(record);
-              handleUpdateModalOpen(true);
+              sethandleUpdateModalOpen(true);
             }}
           >
             修改
@@ -158,7 +149,7 @@ const handleDelete = async (row: API.User) => {
             type="primary"
             key="primary"
             onClick={() => {
-              handleModalOpen(true);
+              setCreateModalOpen(true);
             }}
           >
             <PlusOutlined /> 新建
@@ -182,91 +173,25 @@ const handleDelete = async (row: API.User) => {
           };
         }}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
       />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              已选择{' '}
-              <a
-                style={{
-                  fontWeight: 600,
-                }}
-              >
-                {selectedRowsState.length}
-              </a>{' '}
-              项 &nbsp;&nbsp;
-              <span>
-                服务调用次数总计 {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)} 万
-              </span>
-            </div>
-          }
-        >
-          <Button
-            onClick={async () => {
-              await handleDelete(selectedRowsState[0]);
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            批量删除
-          </Button>
-          <Button type="primary">批量审批</Button>
-        </FooterToolbar>
-      )}
-      <ModalForm
-        title={'新建规则'}
-        width="400px"
-        open={createModalOpen}
-        onOpenChange={handleModalOpen}
-        onFinish={async (value) => {
-          const success = await handleAdd(value as API.User);
-          if (success) {
-            handleModalOpen(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
+      <CreateModal
+        visible={createModalOpen}
+        columns={columns}
+        onSubmit={() => {
+          setCreateModalOpen(false);
+          actionRef.current?.reloadAndRest?.();
         }}
-      >
-        <ProFormText
-          rules={[
-            {
-              required: true,
-              message: '规则名称为必填项',
-            },
-          ]}
-          width="md"
-          name="name"
-        />
-        <ProFormTextArea width="md" name="desc" />
-      </ModalForm>
-      <UpdateForm
-        onSubmit={async (value) => {
-          const success = await handleUpdate(value);
-          if (success) {
-            handleUpdateModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
-        onCancel={() => {
-          handleUpdateModalOpen(false);
-          if (!showDetail) {
-            setCurrentRow(undefined);
-          }
-        }}
-        updateModalOpen={updateModalOpen}
-        values={currentRow || {}}
+        onCancel={() => setCreateModalOpen}
       />
-
+      <UpdateModal
+        visible={updateModalOpen}
+        columns={columns}
+        onSubmit={() => {
+          sethandleUpdateModalOpen(false);
+          actionRef.current?.reloadAndRest?.();
+        }}
+        onCancel={() => sethandleUpdateModalOpen}
+      />
       <Drawer
         width={600}
         open={showDetail}
@@ -276,15 +201,15 @@ const handleDelete = async (row: API.User) => {
         }}
         closable={false}
       >
-        {currentRow?.name && (
+        {currentRow?.userName && (
           <ProDescriptions<API.User>
             column={2}
-            title={currentRow?.name}
+            title={currentRow?.userName}
             request={async () => ({
               data: currentRow || {},
             })}
             params={{
-              id: currentRow?.name,
+              id: currentRow?.userName,
             }}
             columns={columns as ProDescriptionsItemProps<API.User>[]}
           />
@@ -293,4 +218,4 @@ const handleDelete = async (row: API.User) => {
     </PageContainer>
   );
 };
-export default TableList;
+export default UserAdminPage;
