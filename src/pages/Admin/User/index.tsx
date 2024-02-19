@@ -12,77 +12,11 @@ import {
 import '@umijs/max';
 import { Button, Drawer, message, Space, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
-import type { FormValueType } from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import { listUserByPageUsingPost } from '@/services/backend/userController';
+import type { FormValueType } from './components/UpdateModel';
+import UpdateForm from './components/UpdateModel';
+import { listUserByPageUsingPost,  deleteUserUsingPost} from '@/services/backend/userController';
 
-/**
- *
- * @zh-CN 添加节点
- * @param fields
- */
-const handleAdd = async (fields: API.User) => {
-  const hide = message.loading('正在添加');
-  try {
-    await addRule({
-      ...fields,
-    });
-    hide();
-    message.success('Added successfully');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Adding failed, please try again!');
-    return false;
-  }
-};
 
-/**
- *
- * @zh-CN 更新节点
- *
- * @param fields
- */
-const handleUpdate = async (fields: FormValueType) => {
-  const hide = message.loading('正在更新');
-  try {
-    await updateRule({
-      name: fields.name,
-      desc: fields.desc,
-      key: fields.key,
-    });
-    hide();
-    message.success('更新成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('更新失败，请重试!');
-    return false;
-  }
-};
-
-/**
- *
- * @zh-CN 删除节点
- *
- * @param selectedRows
- */
-const handleDelete = async (selectedRows: API.User[]) => {
-  const hide = message.loading('正在删除');
-  if (!selectedRows) return true;
-  try {
-    await removeRule({
-      key: selectedRows.map((row) => row.key),
-    });
-    hide();
-    message.success('删除成功');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('删除失败，请重试!');
-    return false;
-  }
-};
 const TableList: React.FC = () => {
   /**
    *
@@ -99,6 +33,33 @@ const TableList: React.FC = () => {
   // 当前用户点击数据
   const [currentRow, setCurrentRow] = useState<API.User>();
   const [selectedRowsState, setSelectedRows] = useState<API.User[]>([]);
+
+
+  /**
+ *
+ * @zh-CN 删除节点
+ *
+ * @param selectedRows
+ */
+const handleDelete = async (row: API.User) => {
+  const hide = message.loading('正在删除');
+  if (!row) return true;
+  try {
+    await deleteUserUsingPost({
+      id: row.id,
+    });
+    hide();
+    message.success('删除成功');
+    actionRef?.current?.reload()
+    return true;
+  } catch (error) {
+    hide();
+    message.error('删除失败，请重试!');
+    return false;
+  }
+};
+
+
 
   /**
    * 表格列数据
@@ -176,7 +137,7 @@ const TableList: React.FC = () => {
           >
             修改
           </Typography.Link>
-          <Typography.Link type="danger" onClick={() => handleDelete(selectedRowsState)}>
+          <Typography.Link type="danger" onClick={() => handleDelete(record)}>
             删除
           </Typography.Link>
         </Space>
@@ -248,7 +209,7 @@ const TableList: React.FC = () => {
         >
           <Button
             onClick={async () => {
-              await handleDelete(selectedRowsState);
+              await handleDelete(selectedRowsState[0]);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
