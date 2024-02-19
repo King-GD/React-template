@@ -23,7 +23,7 @@ const UserAdminPage: React.FC = () => {
    * @zh-CN 更新窗口的弹窗
    * */
   const [updateModalOpen, sethandleUpdateModalOpen] = useState<boolean>(false);
-  const [showDetail, setShowDetail] = useState<boolean>(true);
+  const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   // 当前用户点击数据
   const [currentRow, setCurrentRow] = useState<API.User>();
@@ -128,15 +128,18 @@ const UserAdminPage: React.FC = () => {
           >
             修改
           </Typography.Link>
-        <Typography.Link type="danger" onClick={() => {
-          Modal.confirm({
-            title: '确定要删除吗？',
-            content: '删除后数据将无法恢复',
-            onOk: () => {
-              handleDelete(record);
-            }
-          })
-        }}>
+          <Typography.Link
+            type="danger"
+            onClick={() => {
+              Modal.confirm({
+                title: '确定要删除吗？',
+                content: '删除后数据将无法恢复',
+                onOk: () => {
+                  handleDelete(record);
+                },
+              });
+            }}
+          >
             删除
           </Typography.Link>
         </Space>
@@ -189,7 +192,7 @@ const UserAdminPage: React.FC = () => {
           setCreateModalOpen(false);
           actionRef.current?.reloadAndRest?.();
         }}
-        onCancel={() => setCreateModalOpen}
+        onCancel={() => setCreateModalOpen(false)}
       />
       <UpdateModal
         visible={updateModalOpen}
