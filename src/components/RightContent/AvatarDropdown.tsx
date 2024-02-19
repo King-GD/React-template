@@ -3,7 +3,6 @@ import { LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons
 import { history, useModel } from '@umijs/max';
 import {Link} from 'umi';
 import { Avatar, Space, Button } from 'antd';
-import { stringify } from 'querystring';
 import type { MenuInfo } from 'rc-menu/lib/interface';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
@@ -28,7 +27,6 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu,  }) => 
    */
   const loginOut = async () => {
     await userLogoutUsingPost();
-    const { search, pathname } = window.location;
     const urlParams = new URL(window.location.href).searchParams;
     /** 此方法会跳转到 redirect 参数所在的位置 */
     const redirect = urlParams.get('redirect');
@@ -36,9 +34,9 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({ menu,  }) => 
     if (window.location.pathname !== '/user/login' && !redirect) {
       history.replace({
         pathname: '/user/login',
-        search: stringify({
-          redirect: pathname + search,
-        }),
+        // search: stringify({
+        //   redirect: pathname + search,
+        // }),
       });
     }
   };

@@ -199,7 +199,7 @@ const UserAdminPage: React.FC = () => {
         columns={columns}
         onSubmit={() => {
           sethandleUpdateModalOpen(false);
-          actionRef.current?.reloadAndRest?.();
+          actionRef.current?.reload();
         }}
         onCancel={() => sethandleUpdateModalOpen(false)}
         oldData={currentRow}
